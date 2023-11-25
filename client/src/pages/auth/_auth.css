@@ -1,0 +1,21 @@
+.login-from{
+    background-image: url('https://img.freepik.com/premium-photo/tropical-palm-leaf-dark-nature-background_45024-1363.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+}
+.login-card{
+    backdrop-filter: blur(8px);
+    background-color: transparent;
+    color: white;
+}
+.form-control.shadow-none{
+    color: white !important;
+}
+label::after{
+    color: white !important;
+    background:transparent !important ;
+}
