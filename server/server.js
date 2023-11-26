@@ -13,11 +13,13 @@ const app = express()
 connectDB()
 app.use(cors())
 app.use(express.json())
+app.use(express.static("upload"))
 app.use(express.urlencoded({ extended: true }))
 app.use(errorHandler)
 
 app.use('/api/products', require('./routes/productRoutes'))
 app.use('/api/users', require('./routes/userRoutes'))
+app.use('/api/upload', require('./routes/imageUploader'))
 
 // server frontend
 // if (process.env.NODE_ENV === "production") {

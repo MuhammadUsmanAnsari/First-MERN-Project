@@ -10,7 +10,7 @@ const getProducts = asyncHandler(async (req, res) => {
 
 // adding product
 const setProducts = asyncHandler(async (req, res) => {
-    const { title, description, category, price } = req.body
+    const { title, description, category, price, image } = req.body
 
     if (!title) {
         res.status(400).json({ error: "Please add title" })
@@ -21,9 +21,13 @@ const setProducts = asyncHandler(async (req, res) => {
     if (!price) {
         res.status(400).json({ error: "Please add price" })
     }
+    if (!image) {
+        res.status(400).json({ error: "Please add image" })
+    }
 
     const products = await Product.create({
         title,
+        image,
         description,
         category,
         price,
@@ -48,6 +52,7 @@ const updateProducts = asyncHandler(async (req, res) => {
     if (product.user.toString() !== req.user.id) {
         res.status(401).json({ error: "User not autherized" })
     }
+
     const updatedproduct = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true })
     res.status(200).json(updatedproduct)
 

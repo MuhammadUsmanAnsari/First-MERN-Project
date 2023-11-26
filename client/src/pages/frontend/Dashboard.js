@@ -2,12 +2,14 @@ import { useEffect, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { createProduct, getProducts, deleteProduct, reset, updateProduct } from '../../features/products/productSlice'
 import { toast } from 'react-toastify'
+import axios from 'axios'
 
 const initialState = {
     title: "",
     category: "",
     price: "",
     description: "",
+    image: ""
 }
 
 
@@ -15,6 +17,7 @@ export default function Dashboard() {
     const { user } = useSelector(state => state.auth)
     const { products, isLoading, isError, isSuccess, message } = useSelector(state => state.products)
     const [productData, setProductData] = useState(initialState)
+    const [imgSelected, setImgSelected] = useState()
     const dispatch = useDispatch()
 
     useEffect(() => {
@@ -34,6 +37,20 @@ export default function Dashboard() {
 
 
     const handleChange = e => setProductData(s => ({ ...s, [e.target.name]: e.target.value }))
+
+    const handleImageChange = async (e) => {
+        let file = e.target.files[0]
+        const formData = new FormData()
+        formData.append("image", file)
+        try {
+            await axios.post("http://localhost:8000/api/upload", formData)
+                .then((res) => {
+                    productData.image = res.data.image
+                })
+        } catch (error) {
+            toast.error("Error while uploading image")
+        }
+    }
 
     // handle submit
     const handleSubmit = e => {
@@ -66,6 +83,7 @@ export default function Dashboard() {
         }
     }
 
+
     return (
         <>
             <div className='container my-5'>
@@ -75,19 +93,22 @@ export default function Dashboard() {
                     <div className="col mt-2">
                         <form onSubmit={handleSubmit}>
                             <div className="row g-3 ">
-                                <div className="col-12 col-md-4">
+                                <div className="col-12 col-md-6">
                                     <input type="text" className="form-control" id="title" name='title' value={productData.title} onChange={handleChange} placeholder="Enter Title" required />
                                 </div>
-                                <div className="col-12 col-md-4">
+                                <div className="col-12 col-md-6">
                                     <input type="number" className="form-control" id="price" name='price' value={productData.price} onChange={handleChange} placeholder="Enter Price" required />
                                 </div>
-                                <div className="col-12 col-md-4">
+                                <div className="col-12 col-md-6">
                                     <select className="form-select " name='category' value={productData.category} onChange={handleChange} aria-label="Default select example" required>
                                         <option value="">Select Category</option>
                                         <option value="mens-shoes">mens-shoes</option>
                                         <option value="furniture">furniture</option>
                                         <option value="mens-shirts">mens-shirts</option>
                                     </select>
+                                </div>
+                                <div className="col-12 col-md-6">
+                                    <input type="file" accept='image/*' className="form-control" id="image" name='image' onChange={handleImageChange} placeholder="Enter Price" required />
                                 </div>
                                 <div className="col-12">
                                     <textarea className="form-control" id="description" name='description' value={productData.description} onChange={handleChange} placeholder='Enter Description' rows="3"></textarea>
@@ -128,6 +149,7 @@ export default function Dashboard() {
                                                     <thead>
                                                         <tr>
                                                             <th scope="col">#</th>
+                                                            <th scope="col" className='text-center'>Img</th>
                                                             <th scope="col">Title</th>
                                                             <th scope="col">Category</th>
                                                             <th scope="col">Price</th>
@@ -141,6 +163,7 @@ export default function Dashboard() {
                                                         {products.map((item, i) => {
                                                             return <tr key={i}>
                                                                 <th scope="row">{i + 1}</th>
+                                                                <td className='text-center'> <img src={`http://localhost:8000/${item.image}`} width={70} height={70} alt="product-image" /></td>
                                                                 <td>{item.title}</td>
                                                                 <td>{item.category}</td>
                                                                 <td>{"$ " + item.price}</td>

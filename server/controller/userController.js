@@ -45,6 +45,7 @@ const loginUser = asyncHandler(async (req, res) => {
             _id: user.id,
             name: user.name,
             email: user.email,
+            image: user.image,
             token: generateToken(user._id)
         })
     } else {
@@ -55,15 +56,28 @@ const loginUser = asyncHandler(async (req, res) => {
 
 // update user
 const updateUser = asyncHandler(async (req, res) => {
-    const { password, email, name } = req.body
+    const { password, email, name, image } = req.body
     let updatedData;
 
-    if (password) {
+    if (password && image) {
         const salt = await bcrypt.genSalt(10)
         const hashedPassword = await bcrypt.hash(password, salt)
         updatedData = {
             ...req.body,
-            password: hashedPassword
+            password: hashedPassword,
+            image
+        }
+    } else if (password) {
+        const salt = await bcrypt.genSalt(10)
+        const hashedPassword = await bcrypt.hash(password, salt)
+        updatedData = {
+            ...req.body,
+            password: hashedPassword,
+        }
+    } else if (image) {
+        updatedData = {
+            ...req.body,
+            image
         }
     } else {
         updatedData = { ...req.body }
@@ -76,6 +90,7 @@ const updateUser = asyncHandler(async (req, res) => {
             name: updatedUser.name,
             email: updatedUser.email,
             _id: updatedUser._id,
+            image: updatedUser.image,
             token: generateToken(req.body._id)
         }
         res.status(201).json(data)
