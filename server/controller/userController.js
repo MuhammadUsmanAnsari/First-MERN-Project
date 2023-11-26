@@ -3,20 +3,15 @@ const bcrypt = require('bcryptjs')
 const asyncHandler = require('express-async-handler')
 const User = require('../models/userModel')
 
-//@desc register new users
-//@route POST/api/users
-//@access public
-
+// register new user
 const registerUser = asyncHandler(async (req, res) => {
     const { email, name, password } = req.body
     if (!email || !name || !password) {
         res.status(400).json({ error: "Please add all fields" })
-        // throw new Error("Please add all fields")
     }
     const userExist = await User.findOne({ email })
     if (userExist) {
         res.status(400).json({ error: "User already exists" })
-        // throw new Error("User already exists")
     }
 
     const salt = await bcrypt.genSalt(10)
@@ -34,17 +29,14 @@ const registerUser = asyncHandler(async (req, res) => {
             name: user.name,
             email: user.email,
             token: generateToken(user._id)
-            // password:user.password
         })
     } else {
         res.status(400).json({ error: "Something went wrong" })
-        // throw new Error("Something went wrong")
     }
 })
 
-//@desc login users
-//@route POST/api/users/login
-//@access public
+
+// login user
 const loginUser = asyncHandler(async (req, res) => {
     const { email, password } = req.body
     const user = await User.findOne({ email })
@@ -57,25 +49,41 @@ const loginUser = asyncHandler(async (req, res) => {
         })
     } else {
         res.status(400).json({ error: "Invalid User Data" })
-        // throw new Error("Invalid User Data")
     }
-    // res.json({ message: 'login user' })
 })
 
-//@desc getting users data
-//@route GET/api/users/me
-//@access public
 
-const getMe = asyncHandler(async (req, res) => {
-    // const { email, name, _id } = await User.findById(req.user.id)
-    // res.status(200).json({
-    //     id: _id,
-    //     name,
-    //     email,
-    // })
-    res.status(200).json(req.user)
-    res.json({ message: 'User data' })
+// update user
+const updateUser = asyncHandler(async (req, res) => {
+    const { password, email, name } = req.body
+    let updatedData;
+
+    if (password) {
+        const salt = await bcrypt.genSalt(10)
+        const hashedPassword = await bcrypt.hash(password, salt)
+        updatedData = {
+            ...req.body,
+            password: hashedPassword
+        }
+    } else {
+        updatedData = { ...req.body }
+    }
+
+
+    const updatedUser = await User.findByIdAndUpdate(req.body._id, updatedData, { new: true })
+    if (updatedUser) {
+        let data = {
+            name: updatedUser.name,
+            email: updatedUser.email,
+            _id: updatedUser._id,
+            token: generateToken(req.body._id)
+        }
+        res.status(201).json(data)
+    } else {
+        res.status(400).json({ error: "Invalid User Data" })
+    }
 })
+
 
 // generating token
 const generateToken = id => {
@@ -88,5 +96,5 @@ const generateToken = id => {
 module.exports = {
     registerUser,
     loginUser,
-    getMe
+    updateUser
 }

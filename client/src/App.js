@@ -4,7 +4,7 @@ import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import 'bootstrap/dist/js/bootstrap.bundle'
 import { BrowserRouter } from 'react-router-dom'
-import Routes from './routes'
+import Routes from './routes/Routes'
 
 function App() {
   return (
